@@ -72,11 +72,13 @@ void setup() {
 void loop() {
 
   //Check to see if anything is available in the serial receive buffer
+  int numChars = 0;
   while (Serial.available() > 0)
   {
     //Create a place to hold the incoming message
     byte inByte = Serial.parseInt();
-    if(inByte == NULL) continue;
+    if(inByte == NULL && numChars > 0) continue;
+    numChars += 1;
     Serial.print("inByte:");
     Serial.println(inByte);
     Serial.print("b_in;");
