@@ -17,7 +17,7 @@ SevenSegmentDisplay screenName(2, 8, 7, 6, 5, 3, 4, NULL, false);//CommonCathode
 
 
 const unsigned int MAX_MESSAGE_LENGTH = 12;
-char decimalArray [3] = {'2','0','0'};
+char decimalArray [3] = {'0','0','0'};
 String decimal = "";
 String hex = "";
 char hexArray[2] = {'0','0'};
@@ -33,27 +33,32 @@ void byteToArrays(byte value) {
 
   hex += String(value,HEX);
   hex.toUpperCase();
+  /*
   Serial.print("HEX: ");
   Serial.println(hex);
   Serial.println("");
+  */
   decimal += String(value, DEC);
-  
+  /*
   Serial.print("Decimal: ");
   Serial.println(decimal);
   Serial.print("length: ");
   Serial.println(decimal.length());
+  */
   decimal.toCharArray(decimalArray, 4);
   if(value >=100 && value < 200) decimalArray[0] = '1';
   else if(value >= 200) decimalArray[0] = '2';
   else decimalArray[0] = '0';
 
-  Serial.println("DecimalArray:");
-  for(int i=0; i<3; i++) Serial.println(decimalArray[i]);
+  //Serial.println("DecimalArray:");
+  //for(int i=0; i<3; i++) Serial.println(decimalArray[i]);
 
-  Serial.println("");
+  //Serial.println("");
   hex.toCharArray(hexArray, 3);
+  /*
   Serial.println("HexArray:");
   for(int i=0; i<2; i++) Serial.println(hexArray[i]);
+  */
   
 }
 
@@ -70,7 +75,6 @@ void setup() {
 }
 
 void loop() {
-
   //Check to see if anything is available in the serial receive buffer
   int numChars = 0;
   while (Serial.available() > 0)
@@ -79,11 +83,13 @@ void loop() {
     byte inByte = Serial.parseInt();
     if(inByte == NULL && numChars > 0) continue;
     numChars += 1;
+    /*
     Serial.print("inByte:");
     Serial.println(inByte);
     Serial.print("b_in;");
     Serial.println(b_in);
     Serial.println("");
+    */
     byteToArrays(inByte);
   }
   for(int i=0; i<5; i++)
@@ -92,13 +98,17 @@ void loop() {
     {
       screenName.displayCharacter(hexArray[i - 3]);
       digitalWrite(digitPins[i],HIGH);
-      delay(5);//Longer light on since green is more dim, could use nanoseconds for red if it turns out to be causing bad refresh-rate.
+      long start = micros();
+      while((micros() - start) < 500)//do nothing
+        if((micros() - start)>10000) break;
     }
     else
     {
       screenName.displayCharacter(decimalArray[i]);
       digitalWrite(digitPins[i],HIGH);
-      delay(1);
+      long start = micros();
+      while((micros() - start) < 100)//do nothing
+        if((micros() - start)>10000) break;
     }
     digitalWrite(digitPins[i],LOW); 
   }
