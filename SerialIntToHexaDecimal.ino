@@ -1,8 +1,22 @@
 //Many thanks to Nick Gammon for the basis of this code
 //http://www.gammon.com.au/serial
 
-const unsigned int MAX_MESSAGE_LENGTH = 12;
+//https://github.com/alikabeel/Letters-and-Numbers-Seven-Segment-Display-Library
+#include <SevenSegmentDisplay.h>
 volatile byte b_in = 0b10000000;
+volatile byte counter = 0b00000000;
+const byte reset = 0xFF;
+
+
+
+//MostSignificant, to LSB
+//First 3 is decimal, last two is Hex
+byte digitPins[] = {11,12,13,9,10};
+
+SevenSegmentDisplay screenName(2, 8, 7, 6, 5, 3, 4, NULL, false);//CommonCathode no decimal-point
+
+
+const unsigned int MAX_MESSAGE_LENGTH = 12;
 char decimalArray [3] = {'2','0','0'};
 String decimal = "";
 String hex = "";
@@ -46,47 +60,44 @@ void byteToArrays(byte value) {
 
 void setup() {
  Serial.begin(9600);
+ 
+  for(int i=0; i<5; i++)
+  {
+    pinMode(digitPins[i],OUTPUT);
+    digitalWrite(digitPins[i],LOW);
+  }
+ 
 }
 
 void loop() {
 
- //Check to see if anything is available in the serial receive buffer
- while (Serial.available() > 0)
- {
-   //Create a place to hold the incoming message
-   byte inByte = Serial.parseInt();
-   if(inByte == NULL) continue;
-   /*
-   //Message coming in (check not terminating character) and guard for over message size
-   if ( inByte != '\n') )
-   {
-     //Add the incoming byte to our message
-     message[message_pos] = inByte;
-     message_pos++;
-   }
-   */
-   //Full message received...
-   /*
-   else
-   {
-      //Add null character to string
-      message[message_pos] = '\0';
-
-      //Print the message (or do other things)
-      Serial.println(message);
-      int number = atoi(message);
-      Serial.println(number);
-
-     //Reset for the next message
-     message_pos = 0;
-   }
-   */
-   Serial.print("inByte:");
-   Serial.println(inByte);
-   Serial.print("b_in;");
-   Serial.println(b_in);
-   Serial.println("");
-   byteToArrays(inByte);
- }
- delay(100);
+  //Check to see if anything is available in the serial receive buffer
+  while (Serial.available() > 0)
+  {
+    //Create a place to hold the incoming message
+    byte inByte = Serial.parseInt();
+    if(inByte == NULL) continue;
+    Serial.print("inByte:");
+    Serial.println(inByte);
+    Serial.print("b_in;");
+    Serial.println(b_in);
+    Serial.println("");
+    byteToArrays(inByte);
+  }
+  for(int i=0; i<5; i++)
+  {
+    if(i>2)
+    {
+      screenName.displayCharacter(hexArray[i - 3]);
+      digitalWrite(digitPins[i],HIGH);
+      delay(5);//Longer light on since green is more dim, could use nanoseconds for red if it turns out to be causing bad refresh-rate.
+    }
+    else
+    {
+      screenName.displayCharacter(decimalArray[i]);
+      digitalWrite(digitPins[i],HIGH);
+      delay(1);
+    }
+    digitalWrite(digitPins[i],LOW); 
+  }
 }
