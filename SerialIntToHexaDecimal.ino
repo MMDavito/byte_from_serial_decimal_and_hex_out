@@ -33,33 +33,15 @@ void byteToArrays(byte value) {
 
   hex += String(value, HEX);
   hex.toUpperCase();
-  /*
-    Serial.print("HEX: ");
-    Serial.println(hex);
-    Serial.println("");
-  */
+
   decimal += String(value, DEC);
-  /*
-    Serial.print("Decimal: ");
-    Serial.println(decimal);
-    Serial.print("length: ");
-    Serial.println(decimal.length());
-  */
+
   decimal.toCharArray(decimalArray, 4);
   if (value >= 100 && value < 200) decimalArray[0] = '1';
   else if (value >= 200) decimalArray[0] = '2';
   else decimalArray[0] = '0';
 
-  //Serial.println("DecimalArray:");
-  //for(int i=0; i<3; i++) Serial.println(decimalArray[i]);
-
-  //Serial.println("");
   hex.toCharArray(hexArray, 3);
-  /*
-    Serial.println("HexArray:");
-    for(int i=0; i<2; i++) Serial.println(hexArray[i]);
-  */
-
 }
 
 
